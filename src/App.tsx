@@ -13,7 +13,7 @@ function App() {
     const [click,setClick] = useState(false)
 
 
-    function stopwatch(){
+    useEffect(() => {
         const unsubscribe = new Subject();
         interval(10)
             .pipe(takeUntil(unsubscribe))
@@ -26,23 +26,21 @@ function App() {
             unsubscribe.next(time);
             unsubscribe.complete();
         };
-    }
-    useEffect(() => {
-    stopwatch()
+
     }, [start]);
 
     const wait =()=>{
-        const sub$ = interval(10)
+        const sub = interval(10)
             .subscribe(v=>{
                 setClick(true)
         if(click){
             if(start){
                 handleStop()
             }
-            sub$.unsubscribe()
+            sub.unsubscribe()
         }})
         setTimeout(()=>{
-            sub$.unsubscribe()
+            sub.unsubscribe()
             setClick(false)
         },300)
     }
@@ -78,7 +76,7 @@ function App() {
     return (
     <div className="App">
         <TimeComponent time={time}/>
-        <ButtonsComponent
+         <ButtonsComponent
         start={handleStart}
         stop={handleStop}
         resume={handleReset}
