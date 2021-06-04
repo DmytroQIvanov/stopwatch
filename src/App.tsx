@@ -1,19 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import './App.css';
-import {interval, Subject} from "rxjs";
-import { takeUntil} from "rxjs/operators";
-import ButtonsComponent from "./Components/ButtonsComponent";
-import TimeComponent from "./Components/TimeComponent";
+import './App.sass';
+import {interval, Observable, Subject,} from "rxjs";
+import {scan, takeUntil} from "rxjs/operators";
+import ButtonsComponent from "./Components/ButtonComponent/ButtonsComponent";
+import TimeComponent from "./Components/TimeComponent/TimeComponent";
 
 
 function App() {
     const [time, setTime] = useState(0)
     const [status, setStatus] = useState(0)
     const [start, setStart] = useState(false)
-    const [smth,setSmth] = useState(false)
+    const [click,setClick] = useState(false)
 
-    useEffect(() => {
 
+    function stopwatch(){
         const unsubscribe = new Subject();
         interval(10)
             .pipe(takeUntil(unsubscribe))
@@ -26,24 +26,25 @@ function App() {
             unsubscribe.next(time);
             unsubscribe.complete();
         };
+    }
+    useEffect(() => {
+    stopwatch()
     }, [start]);
 
     const wait =()=>{
-        const sub = interval(10)
+        const sub$ = interval(10)
             .subscribe(v=>{
-                setSmth(true)
-
-        if(smth){
+                setClick(true)
+        if(click){
             if(start){
                 handleStop()
             }
-            sub.unsubscribe()
+            sub$.unsubscribe()
         }})
         setTimeout(()=>{
-
-            sub.unsubscribe()
-            setSmth(false)
-        },500)
+            sub$.unsubscribe()
+            setClick(false)
+        },300)
     }
 
 
@@ -57,7 +58,17 @@ function App() {
 
     }
 
-
+    // const f=()=>{
+    //
+    //     const source$ = new Observable(observer => {
+    //         observer.next()
+    //     });
+    //     source$
+    //         .pipe(scan(count => count + 1, 0))
+    //         .subscribe(count => console.log(`Clicked ${count} times`));
+    //
+    //
+    // }
 
     const handleStop =()=>{
     setStart(false);
@@ -67,13 +78,12 @@ function App() {
     return (
     <div className="App">
         <TimeComponent time={time}/>
-    <ButtonsComponent
+        <ButtonsComponent
         start={handleStart}
         stop={handleStop}
         resume={handleReset}
         status={status}
-        wait={wait}
-    />
+        wait={wait}/>
     </div>
   );
 }
